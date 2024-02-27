@@ -1,3 +1,5 @@
+package com.example.cs4076_clientfx;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,15 +9,15 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 
@@ -25,24 +27,42 @@ import javafx.stage.Stage;
 public class App extends Application {
     static InetAddress host;
     static final int PORT = 1234;
-    Label classNameLabel = new Label("Enter Class Name: ");
     TextField classNameTextField = new TextField();
-    Label classDateLabel = new Label("Enter The Class Date: ");
     TextField classDateTextField = new TextField();
-    Label classTimeLabel = new Label("Enter The Class Time: ");
     TextField classTimeTextField = new TextField();
-    Label roomNumberLabel = new Label("Enter The Room Number: ");
     TextField roomNumberTextField = new TextField();
-    Button addClassButton = new Button("Add Class");
-    Button removeClassButton = new Button("Remove Class");
-    Button displayScheduleButton = new Button("Display Schedule");
+    Button submitButton = new Button("Submit");
     Label testLabel = new Label("Test Label");
+    ChoiceBox actions = new ChoiceBox();
 
 
     @Override
     public void start(Stage stage) {
+        classNameTextField.setPromptText("Class Name");
+        classDateTextField.setPromptText("Class Date");
+        classTimeTextField.setPromptText("Class Time");
+        roomNumberTextField.setPromptText("Room Number");
+        actions.getItems().addAll("Add Class", "Remove Class", "Display Schedule");
+        testLabel.setWrapText(true);
 
-        addClassButton.setOnAction(new EventHandler<ActionEvent>() {
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(8);
+        gridPane.setVgap(8);
+        gridPane.setPadding(new Insets(5));
+
+        gridPane.addRow(0, classNameTextField, actions, submitButton);
+        gridPane.addRow(1, classDateTextField, testLabel);
+        gridPane.addRow(2, classTimeTextField);
+        gridPane.addRow(3, roomNumberTextField);
+
+        GridPane.setColumnSpan(testLabel, 2);
+        GridPane.setRowSpan(testLabel, 3);
+        gridPane.setHalignment(testLabel, HPos.CENTER);
+
+        stage.setTitle("Class Scheduler");
+        stage.setOnShown(event -> gridPane.requestFocus());
+
+        submitButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
                 try
@@ -95,22 +115,8 @@ public class App extends Application {
                 }
             }});
 
-
-
-
-
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(8);
-        gridPane.setVgap(8);
-        gridPane.setPadding(new Insets(5));
-        gridPane.addRow(0, classNameLabel, classNameTextField);
-        gridPane.addRow(1, classDateLabel, classDateTextField);
-        gridPane.addRow(2, classTimeLabel, classTimeTextField);
-        gridPane.addRow(3, roomNumberLabel, roomNumberTextField);
-        gridPane.addRow(4, addClassButton, removeClassButton, displayScheduleButton);
-
-        VBox box = new VBox(gridPane, testLabel);
-        Scene scene = new Scene(box, 400, 200);
+        //VBox box = new VBox(gridPane, testLabel);
+        Scene scene = new Scene(gridPane, 400, 200);
         stage.setScene(scene);
         stage.show();
     }
