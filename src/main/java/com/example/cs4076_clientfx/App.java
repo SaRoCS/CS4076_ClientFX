@@ -14,6 +14,7 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
@@ -28,36 +29,37 @@ public class App extends Application {
     static InetAddress host;
     static final int PORT = 1234;
     TextField classNameTextField = new TextField();
-    TextField classDateTextField = new TextField();
+    DatePicker classDatePicker = new DatePicker();
     TextField classTimeTextField = new TextField();
     TextField roomNumberTextField = new TextField();
     Button submitButton = new Button("Submit");
-    Label testLabel = new Label("Test Label");
-    ChoiceBox actions = new ChoiceBox();
+    Button stopButton = new Button("Stop");
+    Label serverResponse = new Label("Server Response");
+    ChoiceBox<String> actions = new ChoiceBox<String>();
 
 
     @Override
     public void start(Stage stage) {
         classNameTextField.setPromptText("Class Name");
-        classDateTextField.setPromptText("Class Date");
+        classDatePicker.setPromptText("Class Date");
         classTimeTextField.setPromptText("Class Time");
         roomNumberTextField.setPromptText("Room Number");
         actions.getItems().addAll("Add Class", "Remove Class", "Display Schedule");
-        testLabel.setWrapText(true);
+        serverResponse.setWrapText(true);
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(8);
         gridPane.setVgap(8);
         gridPane.setPadding(new Insets(5));
 
-        gridPane.addRow(0, classNameTextField, actions, submitButton);
-        gridPane.addRow(1, classDateTextField, testLabel);
+        gridPane.addRow(0, classNameTextField, actions, submitButton, stopButton);
+        gridPane.addRow(1, classDatePicker, serverResponse);
         gridPane.addRow(2, classTimeTextField);
         gridPane.addRow(3, roomNumberTextField);
 
-        GridPane.setColumnSpan(testLabel, 2);
-        GridPane.setRowSpan(testLabel, 3);
-        gridPane.setHalignment(testLabel, HPos.CENTER);
+        gridPane.setColumnSpan(serverResponse, 2);
+        gridPane.setRowSpan(serverResponse, 3);
+        gridPane.setHalignment(serverResponse, HPos.CENTER);
 
         stage.setTitle("Class Scheduler");
         stage.setOnShown(event -> gridPane.requestFocus());
@@ -86,16 +88,17 @@ public class App extends Application {
                     String classDate = null;
                     String classTime = null;
                     String roomNumber = null;
+                    String userAction = null;
                     String response= null;
 
-                    System.out.println("Enter message to be sent to server: ");
                     className =  classNameTextField.getText().toString();
-                    classDate =  classDateTextField.getText().toString();
+                    classDate = classDatePicker.getValue().getDayOfWeek().name();
                     classTime =  classTimeTextField.getText().toString();
                     roomNumber =  roomNumberTextField.getText().toString();
+                    userAction = actions.getValue().toString();
                     out.println(className);
                     response = in.readLine();
-                    testLabel.setText(response);
+                    serverResponse.setText(response);
                 }
                 catch(IOException e)
                 {
@@ -115,7 +118,6 @@ public class App extends Application {
                 }
             }});
 
-        //VBox box = new VBox(gridPane, testLabel);
         Scene scene = new Scene(gridPane, 400, 200);
         stage.setScene(scene);
         stage.show();
@@ -124,5 +126,4 @@ public class App extends Application {
     public static void main(String[] args) {
         launch();
     }
-
 }
