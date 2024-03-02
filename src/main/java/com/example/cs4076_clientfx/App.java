@@ -1,9 +1,6 @@
 package com.example.cs4076_clientfx;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -20,6 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import org.json.simple.JSONObject;
 
 
 /**
@@ -80,9 +78,8 @@ public class App extends Application {
                 try
                 {
                     link = new Socket(host,PORT);
-                    //link = new Socket( "192.168.0.59", PORT);
-                    BufferedReader in = new BufferedReader(new InputStreamReader(link.getInputStream()));
-                    PrintWriter out = new PrintWriter(link.getOutputStream(),true);
+                    ObjectOutputStream outO = new ObjectOutputStream(link.getOutputStream());
+                    ObjectInputStream inO = new ObjectInputStream(link.getInputStream());
 
                     String className = null;
                     String classDate = null;
@@ -96,15 +93,19 @@ public class App extends Application {
                     classTime =  classTimeTextField.getText().toString();
                     roomNumber =  roomNumberTextField.getText().toString();
                     userAction = actions.getValue().toString();
-                    out.println(className);
-                    response = in.readLine();
-                    serverResponse.setText(response);
+
+                    JSONObject obj = new JSONObject();
+                    obj.put("name", className);
+                    outO.writeObject(obj);
+                    JSONObject res = (JSONObject) inO.readObject();
+                    serverResponse.setText(res.get("response").toString());
                 }
                 catch(IOException e)
                 {
                     e.printStackTrace();
-                }
-                finally
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                } finally
                 {
                     try
                     {
