@@ -4,7 +4,10 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -26,6 +29,8 @@ import org.json.simple.JSONObject;
 public class App extends Application {
     static InetAddress host;
     static final int PORT = 1234;
+    static boolean connectionOpen = false;
+    static Socket link = null;
     TextField classNameTextField = new TextField();
     DatePicker classDatePicker = new DatePicker();
     TextField classTimeTextField = new TextField();
@@ -44,6 +49,8 @@ public class App extends Application {
         roomNumberTextField.setPromptText("Room Number");
         actions.getItems().addAll("Add Class", "Remove Class", "Display Schedule");
         serverResponse.setWrapText(true);
+
+        submitButton.disableProperty().bind(Bindings.isNull(actions.valueProperty()));
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(8);
@@ -65,59 +72,45 @@ public class App extends Application {
         submitButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                try
-                {
-                    host = InetAddress.getLocalHost();
-                }
-                catch(UnknownHostException e)
-                {
-                    System.out.println("Host ID not found!");
-                    System.exit(1);
-                }
-                Socket link = null;
-                try
-                {
-                    link = new Socket(host,PORT);
-                    ObjectOutputStream outO = new ObjectOutputStream(link.getOutputStream());
-                    ObjectInputStream inO = new ObjectInputStream(link.getInputStream());
-
-                    String className = null;
-                    String classDate = null;
-                    String classTime = null;
-                    String roomNumber = null;
-                    String userAction = null;
-                    String response= null;
-
-                    className =  classNameTextField.getText().toString();
-                    classDate = classDatePicker.getValue().getDayOfWeek().name();
-                    classTime =  classTimeTextField.getText().toString();
-                    roomNumber =  roomNumberTextField.getText().toString();
-                    userAction = actions.getValue().toString();
-
-                    JSONObject obj = new JSONObject();
-                    obj.put("name", className);
-                    outO.writeObject(obj);
-                    JSONObject res = (JSONObject) inO.readObject();
-                    serverResponse.setText(res.get("response").toString());
-                }
-                catch(IOException e)
-                {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                } finally
-                {
-                    try
-                    {
-                        System.out.println("\n* Closing connection... *");
-                        link.close();				//Step 4.
-                    }catch(IOException e)
-                    {
-                        System.out.println("Unable to disconnect/close!");
-                        System.exit(1);
+                try {
+                    if (!connectionOpen) {
+                        openConnection();
                     }
+
+                    ObjectOutputStream out = new ObjectOutputStream(link.getOutputStream());
+                    ObjectInputStream in = new ObjectInputStream(link.getInputStream());
+
+                    String className = classNameTextField.getText();
+                    String classDate = classDatePicker.getValue().getDayOfWeek().name();
+                    String classTime = classTimeTextField.getText();
+                    String roomNumber = roomNumberTextField.getText();
+                    String userAction = actions.getValue();
+
+                    JSONObject res = sendData(in, out, className, classDate, classTime, roomNumber, userAction);
+
+                    if (res != null) {
+                        serverResponse.setText(res.get("response").toString());
+                    } else {
+                        serverResponse.setText("An error occurred while communicating with the server");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }});
+            }
+        });
+
+        actions.setOnAction(event -> {
+            String value = actions.getValue();
+            if (!value.equals("Display Schedule")) {
+                BooleanBinding requiredFields = Bindings.isEmpty(classNameTextField.textProperty())
+                        .or(Bindings.isNull(classDatePicker.valueProperty()))
+                        .or(Bindings.isEmpty(classTimeTextField.textProperty()))
+                        .or(Bindings.isEmpty(roomNumberTextField.textProperty()));
+                submitButton.disableProperty().bind(requiredFields);
+            }
+        });
+
+        stopButton.setOnAction(event -> closeConnection());
 
         Scene scene = new Scene(gridPane, 400, 200);
         stage.setScene(scene);
@@ -127,4 +120,58 @@ public class App extends Application {
     public static void main(String[] args) {
         launch();
     }
+
+    private static JSONObject sendData(ObjectInputStream in, ObjectOutputStream out, String className, String classDate, String classTime, String roomNumber, String userAction) {
+        JSONObject obj = new JSONObject();
+        JSONObject data = null;
+        JSONObject res = null;
+
+        if (!userAction.equals("Display Schedule")) {
+            data = new JSONObject();
+            data.put("name", className);
+            data.put("dayOfWeek", classDate);
+            data.put("startTime", classTime);
+            data.put("roomNumber", roomNumber);
+        }
+
+        obj.put("action", userAction);
+        obj.put("data", data);
+
+        try {
+            out.writeObject(obj);
+            res = (JSONObject) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return res;
+    }
+
+    private static void openConnection() {
+        try {
+            host = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            System.out.println("Host ID not found!");
+            System.exit(1);
+        }
+
+        try {
+            link = new Socket(host, PORT);
+            connectionOpen = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void closeConnection() {
+        try {
+            System.out.println("\n* Closing connection... *");
+            link.close();
+            connectionOpen = false;
+        } catch (IOException e) {
+            System.out.println("Unable to disconnect/close!");
+            System.exit(1);
+        }
+    }
+
 }
