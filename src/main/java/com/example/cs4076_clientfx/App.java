@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -12,14 +14,13 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import org.json.simple.JSONObject;
 
 
@@ -49,8 +50,24 @@ public class App extends Application {
         roomNumberTextField.setPromptText("Room Number");
         actions.getItems().addAll("Add Class", "Remove Class", "Display Schedule");
         serverResponse.setWrapText(true);
+        classDatePicker.setEditable(false);
 
         submitButton.disableProperty().bind(Bindings.isNull(actions.valueProperty()));
+
+        classDatePicker.setDayCellFactory(new Callback<DatePicker, DateCell>() {
+            public DateCell call(final DatePicker datePicker) {
+                return new DateCell() {
+                    @Override
+                    public void updateItem(LocalDate item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item.getDayOfWeek() == DayOfWeek.SUNDAY || item.getDayOfWeek() == DayOfWeek.SATURDAY) {
+                            setDisable(true);
+                            setStyle("-fx-background-color: #ffc0cb;");
+                        }
+                    }
+                };
+            }
+        });
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(8);
