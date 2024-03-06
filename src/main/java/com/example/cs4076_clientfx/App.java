@@ -39,12 +39,12 @@ public class App extends Application {
         launch();
     }
 
-    private static JSONObject sendData(ObjectInputStream in, ObjectOutputStream out, String className, String classDate, LocalTime startTime, LocalTime endTime, String roomNumber, String userAction) {
+    private static JSONObject sendData(ObjectInputStream in, ObjectOutputStream out, String userAction, String className, String classDate, LocalTime startTime, LocalTime endTime, String roomNumber) {
         JSONObject obj = new JSONObject();
         JSONObject data = null;
         JSONObject res = null;
 
-        if (!userAction.equals("Display Schedule")) {
+        if (!userAction.equals("Display Schedule") && !userAction.equals("STOP")) {
             data = new JSONObject();
             data.put("name", className);
             data.put("dayOfWeek", classDate);
@@ -187,7 +187,7 @@ public class App extends Application {
                     roomNumber = roomNumberTextField.getText();
                 }
 
-                JSONObject res = sendData(in, out, className, classDate, startTime, endTime, roomNumber, userAction);
+                JSONObject res = sendData(in, out, userAction, className, classDate, startTime, endTime, roomNumber);
 
                 if (res != null) {
                     serverResponse.setText(res.get("response").toString());
@@ -207,7 +207,25 @@ public class App extends Application {
             }
         });
 
-        stopButton.setOnAction(event -> closeConnection());
+        stopButton.setOnAction(event -> {
+            if (connectionOpen) {
+                ObjectOutputStream out = null;
+                ObjectInputStream in = null;
+                try {
+                    out = new ObjectOutputStream(link.getOutputStream());
+                    in = new ObjectInputStream(link.getInputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                JSONObject res = sendData(in, out, "STOP", null, null, null, null, null);
+                if (res != null) {
+                    serverResponse.setText(res.get("response").toString());
+                } else {
+                    serverResponse.setText("An error occurred while communicating with the server");
+                }
+                closeConnection();
+            }
+        });
 
         Scene scene = new Scene(gridPane, 400, 210);
         stage.setScene(scene);
