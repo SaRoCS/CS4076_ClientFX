@@ -1,5 +1,11 @@
 package com.example.cs4076_clientfx;
-
+/**
+ * JSON package
+ */
+import org.json.simple.JSONObject;
+/**
+ * JavaFX packages
+ */
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -13,8 +19,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import org.json.simple.JSONObject;
-
+/**
+ * Other Java packages
+ */
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -25,9 +32,11 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-
 /**
  * JavaFX App
+ *
+ * @author Westin Gjervold
+ * @author Samuel Schroeder
  */
 public class App extends Application {
     /**
@@ -139,7 +148,8 @@ public class App extends Application {
         ChoiceBox<Integer> endHours = new ChoiceBox<Integer>();
         ChoiceBox<String> endMinutes = new ChoiceBox<String>();
         HBox startTimeBox = new HBox(5, new Label("Start Time:"), startHours, new Label(":"), startMinutes);
-        HBox endTimeBox = new HBox(5, new Label("End Time:"), endHours, new Label(":"), endMinutes);
+        HBox endTimeBox = new HBox(5, new Label("End Time: "), endHours, new Label(":"), endMinutes);
+        HBox actionBox = new HBox(5, new Label("Action:"), actions);
         HBox btnControls = new HBox(25, submitButton, stopButton);
 
         // Set the necessary properties for the GUI elements
@@ -187,7 +197,7 @@ public class App extends Application {
         gridPane.addRow(2, startTimeBox);
         gridPane.addRow(3, endTimeBox);
         gridPane.addRow(4, roomNumberTextField);
-        gridPane.addRow(5, actions);
+        gridPane.addRow(5, actionBox);
 
         // Set the column widths
         ColumnConstraints col1 = new ColumnConstraints();
@@ -276,10 +286,9 @@ public class App extends Application {
                 closeConnection();
             }
         });
-
+        //Sets the scene
         Scene scene = new Scene(gridPane, 400, 210);
         stage.setScene(scene);
         stage.show();
     }
-
 }
