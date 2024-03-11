@@ -22,15 +22,19 @@ import javafx.util.Callback;
 /**
  * Other Java packages
  */
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import javax.net.ssl.*;
 
 /**
  * JavaFX App
@@ -111,9 +115,42 @@ public class App extends Application {
             System.exit(1);
         }
 
+        char[] password = "cs4076".toCharArray();
+        SSLSocketFactory sslSocketFactory = null;
+
         try {
-            link = new Socket(host, PORT);
+            // Load client's trusted keys
+            KeyStore trustStore = KeyStore.getInstance("JKS");
+            InputStream inputStream = new FileInputStream("client_truststore.jks");
+            trustStore.load(inputStream, password);
+
+            // Create trust manager
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(trustStore);
+
+            // Create SSL factory
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
+            sslSocketFactory = sslContext.getSocketFactory();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            // Create SSL socket
+            link = sslSocketFactory.createSocket(host, PORT);
             connectionOpen = true;
+        } catch (NullPointerException e) {
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -219,6 +256,12 @@ public class App extends Application {
                 // Connect to the server if needed
                 if (!connectionOpen) {
                     openConnection();
+                }
+
+                // openConnection() was unsuccessful
+                if (link == null) {
+                    serverResponse.setText("Could not establish a connection with the server.");
+                    return;
                 }
 
                 ObjectOutputStream out = new ObjectOutputStream(link.getOutputStream());
