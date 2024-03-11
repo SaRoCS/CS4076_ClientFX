@@ -1,11 +1,5 @@
 package com.example.cs4076_clientfx;
-/**
- * JSON package
- */
-import org.json.simple.JSONObject;
-/**
- * JavaFX packages
- */
+
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -19,12 +13,15 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-/**
- * Other Java packages
- */
+import org.json.simple.JSONObject;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -34,7 +31,6 @@ import java.security.cert.CertificateException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import javax.net.ssl.*;
 
 /**
  * JavaFX App
@@ -77,12 +73,13 @@ public class App extends Application {
      * @param roomNumber The room number of the class to perform the action on
      * @return The server's response
      */
-    private static JSONObject sendData(ObjectInputStream in, ObjectOutputStream out, String userAction, String className, String classDate, LocalTime startTime, LocalTime endTime, String roomNumber) {
+    private static String sendData(ObjectInputStream in, ObjectOutputStream out, String userAction, String className, String classDate, LocalTime startTime, LocalTime endTime, String roomNumber) {
         JSONObject obj = new JSONObject();
         JSONObject data = null;
-        JSONObject res = null;
+        String res = "An error occurred while communicating with the server";
 
         if (!userAction.equals("Display Schedule") && !userAction.equals("STOP")) {
+            // Create a data object
             data = new JSONObject();
             data.put("name", className);
             data.put("dayOfWeek", classDate);
@@ -96,8 +93,9 @@ public class App extends Application {
 
         try {
             out.writeObject(obj);
-            res = (JSONObject) in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
+            JSONObject resObj = (JSONObject) in.readObject();
+            res = resObj.get("response").toString();
+        } catch (IOException | ClassNotFoundException | NullPointerException e) {
             e.printStackTrace();
         }
 
@@ -106,8 +104,10 @@ public class App extends Application {
 
     /**
      * Opens a connection with the server
+     *
+     * @return true if the connection was opened
      */
-    private static void openConnection() {
+    private static boolean openConnection() {
         try {
             host = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
@@ -115,49 +115,15 @@ public class App extends Application {
             System.exit(1);
         }
 
+        /*
+            WARNING!!! This is just for demonstration purposes. You store and retrieve the password in a secure way.
+         */
         char[] password = "cs4076".toCharArray();
-        SSLSocketFactory sslSocketFactory = null;
-
-        try {
-            // Load client's trusted keys
-            KeyStore trustStore = KeyStore.getInstance("JKS");
-            InputStream inputStream = new FileInputStream("client_truststore.jks");
-            trustStore.load(inputStream, password);
-
-            // Create trust manager
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(trustStore);
-
-            // Create SSL factory
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
-            sslSocketFactory = sslContext.getSocketFactory();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            // Create SSL socket
-            link = sslSocketFactory.createSocket(host, PORT);
-            connectionOpen = true;
-        } catch (NullPointerException e) {
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return createSSLSocket("client_truststore.jks", password);
     }
 
     /**
-     * CLoses the connection with the server
+     * Closes the connection with the server
      */
     private static void closeConnection() {
         try {
@@ -170,6 +136,45 @@ public class App extends Application {
         }
     }
 
+    /**
+     * Creates an SSL socket
+     *
+     * @param trustStoreFile The path to the client's truststore file
+     * @param password       The truststore password
+     * @return True, if the socket was created
+     */
+    private static boolean createSSLSocket(String trustStoreFile, char[] password) {
+        SSLSocketFactory sslSocketFactory = null;
+
+        try {
+            // Load client's trusted keys into a trust manager
+            KeyStore trustStore = KeyStore.getInstance("JKS");
+            InputStream inputStream = new FileInputStream(trustStoreFile);
+            trustStore.load(inputStream, password);
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(trustStore);
+
+            // Create SSL factory with the trusted keys
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
+            sslSocketFactory = sslContext.getSocketFactory();
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | KeyManagementException |
+                 IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            // Create SSL socket
+            link = sslSocketFactory.createSocket(host, PORT);
+            connectionOpen = true;
+        } catch (NullPointerException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return link != null;
+    }
+
     @Override
     public void start(Stage stage) {
         // Create the GUI elements
@@ -179,11 +184,11 @@ public class App extends Application {
         Button submitButton = new Button("Submit");
         Button stopButton = new Button("Stop");
         Label serverResponse = new Label("Server Response");
-        ChoiceBox<String> actions = new ChoiceBox<String>();
-        ChoiceBox<Integer> startHours = new ChoiceBox<Integer>();
-        ChoiceBox<String> startMinutes = new ChoiceBox<String>();
-        ChoiceBox<Integer> endHours = new ChoiceBox<Integer>();
-        ChoiceBox<String> endMinutes = new ChoiceBox<String>();
+        ChoiceBox<String> actions = new ChoiceBox<>();
+        ChoiceBox<Integer> startHours = new ChoiceBox<>();
+        ChoiceBox<String> startMinutes = new ChoiceBox<>();
+        ChoiceBox<Integer> endHours = new ChoiceBox<>();
+        ChoiceBox<String> endMinutes = new ChoiceBox<>();
         HBox startTimeBox = new HBox(5, new Label("Start Time:"), startHours, new Label(":"), startMinutes);
         HBox endTimeBox = new HBox(5, new Label("End Time: "), endHours, new Label(":"), endMinutes);
         HBox actionBox = new HBox(5, new Label("Action:"), actions);
@@ -207,7 +212,7 @@ public class App extends Application {
         submitButton.disableProperty().bind(Bindings.isNull(actions.valueProperty()));
 
         // Disables selecting weekend days in the calendar
-        classDatePicker.setDayCellFactory(new Callback<DatePicker, DateCell>() {
+        classDatePicker.setDayCellFactory(new Callback<>() {
             public DateCell call(final DatePicker datePicker) {
                 return new DateCell() {
                     @Override
@@ -255,13 +260,11 @@ public class App extends Application {
             try {
                 // Connect to the server if needed
                 if (!connectionOpen) {
-                    openConnection();
-                }
-
-                // openConnection() was unsuccessful
-                if (link == null) {
-                    serverResponse.setText("Could not establish a connection with the server.");
-                    return;
+                    // openConnection() was unsuccessful
+                    if (!openConnection()) {
+                        serverResponse.setText("Could not establish a connection with the server.");
+                        return;
+                    }
                 }
 
                 ObjectOutputStream out = new ObjectOutputStream(link.getOutputStream());
@@ -284,13 +287,16 @@ public class App extends Application {
                 }
 
                 // Send the form data
-                JSONObject res = sendData(in, out, userAction, className, classDate, startTime, endTime, roomNumber);
+                String res = sendData(in, out, userAction, className, classDate, startTime, endTime, roomNumber);
 
                 // Display the response
-                if (res != null) {
-                    serverResponse.setText(res.get("response").toString());
+                serverResponse.setText(res);
+
+            } catch (SocketException e) {
+                if (e.getMessage().equals("Connection reset by peer")) {
+                    serverResponse.setText("Server disconnected.");
                 } else {
-                    serverResponse.setText("An error occurred while communicating with the server");
+                    e.printStackTrace();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -303,6 +309,10 @@ public class App extends Application {
             if (!value.equals("Display Schedule")) {
                 BooleanBinding requiredFields = Bindings.isEmpty(classNameTextField.textProperty()).or(Bindings.isNull(classDatePicker.valueProperty())).or(Bindings.isNull(startHours.valueProperty())).or(Bindings.isNull(startMinutes.valueProperty())).or(Bindings.isNull(endHours.valueProperty())).or(Bindings.isNull(endMinutes.valueProperty())).or(Bindings.isEmpty(roomNumberTextField.textProperty()));
                 submitButton.disableProperty().bind(requiredFields);
+            } else {
+                // Enable the button if display is selected
+                submitButton.disableProperty().unbind();
+                submitButton.setDisable(false);
             }
         });
 
@@ -318,17 +328,13 @@ public class App extends Application {
                     e.printStackTrace();
                 }
 
-                JSONObject res = sendData(in, out, "STOP", null, null, null, null, null);
-
-                if (res != null) {
-                    serverResponse.setText(res.get("response").toString());
-                } else {
-                    serverResponse.setText("An error occurred while communicating with the server");
-                }
+                String res = sendData(in, out, "STOP", null, null, null, null, null);
+                serverResponse.setText(res);
 
                 closeConnection();
             }
         });
+
         //Sets the scene
         Scene scene = new Scene(gridPane, 400, 210);
         stage.setScene(scene);
