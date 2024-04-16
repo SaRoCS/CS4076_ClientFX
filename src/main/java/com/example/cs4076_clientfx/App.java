@@ -13,7 +13,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -83,8 +86,8 @@ public class App extends Application {
             data = new JSONObject();
             data.put("name", className);
             data.put("dayOfWeek", classDate);
-            data.put("startTime", startTime);
-            data.put("endTime", endTime);
+            data.put("startTime", startTime.toString());
+            data.put("endTime", endTime.toString());
             data.put("roomNumber", roomNumber);
         }
 
@@ -116,7 +119,7 @@ public class App extends Application {
         }
 
         /*
-            WARNING!!! This is just for demonstration purposes. You store and retrieve the password in a secure way.
+            WARNING!!! This is just for demonstration purposes. You should store and retrieve the password in a secure way.
          */
         char[] password = "cs4076".toCharArray();
         return createSSLSocket("client_truststore.jks", password);
@@ -289,8 +292,23 @@ public class App extends Application {
                 // Send the form data
                 String res = sendData(in, out, userAction, className, classDate, startTime, endTime, roomNumber);
 
-                // Display the response
-                serverResponse.setText(res);
+                if (userAction.equals("Display Schedule")) {
+                    try {
+                        JSONObject schedule = (JSONObject) new JSONParser().parse(res);
+                        // Display schedule
+
+                        // Test for getting data
+                        JSONArray t = (JSONArray) schedule.get("TUESDAY");
+                        serverResponse.setText(t.get(0).toString());
+
+                    } catch (ParseException e) {
+                        serverResponse.setText("Server sent an invalid response.");
+                        e.printStackTrace();
+                    }
+                } else {
+                    // Display the response
+                    serverResponse.setText(res);
+                }
 
             } catch (SocketException e) {
                 if (e.getMessage().equals("Connection reset by peer")) {
