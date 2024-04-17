@@ -376,18 +376,18 @@ public class App extends Application {
                         DaysInfo[4] = (JSONArray) schedule.get("FRIDAY");
 
                         //Updated Schedule
-                        for (JSONArray tempDay : DaysInfo) {
-                            for (int i = 0; i < tempDay.size(); i++) {
-                                JSONObject temp = (JSONObject) tempDay.get(i);
+                        for (int day = 0; day < 5; day++) {
+                            for (int i = 0; i < DaysInfo[day].size(); i++) {
+                                JSONObject temp = (JSONObject) DaysInfo[day].get(i);
                                 if (temp.get("startTime").toString().equals("9:00")) {
-                                    Class_Array[0][0].setText("|" + temp.get("name").toString());
-                                    Room_Array[0][0].setText("|" + temp.get("roomNumber").toString());
+                                    Class_Array[day][0].setText("|" + temp.get("name").toString());
+                                    Room_Array[day][0].setText("|" + temp.get("roomNumber").toString());
                                 } else {
                                     for (int j = 0; j < 8; j++) {
                                         int tempInt = temp.get("startTime").toString().charAt(1);
                                         if (tempInt == (j + 48)) {
-                                            Class_Array[0][j + 1].setText("|" + temp.get("name").toString());
-                                            Room_Array[0][j + 1].setText("|" + temp.get("roomNumber").toString());
+                                            Class_Array[day][j + 1].setText("|" + temp.get("name").toString());
+                                            Room_Array[day][j + 1].setText("|" + temp.get("roomNumber").toString());
                                         }
                                     }
                                 }
