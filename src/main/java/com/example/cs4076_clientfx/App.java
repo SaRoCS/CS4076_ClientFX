@@ -1,6 +1,4 @@
 package com.example.cs4076_clientfx;
-
-package com.CS4076.ClientFX;
 /*
  * JavaFX Imports
  */
@@ -395,13 +393,17 @@ public class App extends Application {
                         for (int day = 0; day < 5; day++) {
                             for (int i = 0; i < DaysInfo[day].size(); i++) {
                                 JSONObject temp = (JSONObject) DaysInfo[day].get(i);
+                                int startTimeInt;
                                 if (temp.get("startTime").toString().equals("09:00")) {
-                                    Class_Array[day][0].setText(temp.get("name").toString() + "\n" + temp.get("roomNumber").toString());
+                                    startTimeInt = 47;
                                 } else {
-                                    for (int j = 0; j < 8; j++) {
-                                        int tempInt = temp.get("startTime").toString().charAt(1);
-                                        if (tempInt == (j + 48)) {
-                                            Class_Array[day][j + 1].setText(temp.get("name").toString() + "\n" + temp.get("roomNumber").toString());
+                                    startTimeInt = temp.get("startTime").toString().charAt(1);
+                                }
+                                for (int j = 0; j < 9; j++) {
+                                    if (startTimeInt == (j + 47)) {
+                                        int endTimeInt = temp.get("endTime").toString().charAt(1);
+                                        for(int k = j; k < ((endTimeInt-startTimeInt)+j); k++) {
+                                            Class_Array[day][k].setText(temp.get("name").toString() + "\n" + temp.get("roomNumber").toString());
                                         }
                                     }
                                 }
