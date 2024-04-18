@@ -194,12 +194,10 @@ public class App extends Application {
         Label serverResponse = new Label("Server Response");
         Label earlyLectureStatus = new Label("Early Lecture Status: Not Started");
         ChoiceBox<String> actions = new ChoiceBox<>();
-        ChoiceBox<Integer> startHours = new ChoiceBox<>();
-        ChoiceBox<String> startMinutes = new ChoiceBox<>();
-        ChoiceBox<Integer> endHours = new ChoiceBox<>();
-        ChoiceBox<String> endMinutes = new ChoiceBox<>();
-        HBox startTimeBox = new HBox(5, new Label("Start Time:"), startHours, new Label(":"), startMinutes);
-        HBox endTimeBox = new HBox(5, new Label("End Time: "), endHours, new Label(":"), endMinutes);
+        ChoiceBox<String> startHours = new ChoiceBox<>();
+        ChoiceBox<String> endHours = new ChoiceBox<>();
+        HBox startTimeBox = new HBox(5, new Label("Start Time:"), startHours);
+        HBox endTimeBox = new HBox(5, new Label("End Time: "), endHours);
         HBox actionBox = new HBox(5, new Label("Action:"), actions);
         HBox btnControls = new HBox(25, submitButton, stopButton);
         //Schedule Labels
@@ -264,10 +262,8 @@ public class App extends Application {
         classDatePicker.setEditable(false);
         btnControls.setAlignment(Pos.CENTER);
 
-        startHours.getItems().addAll(9, 10, 11, 12, 13, 14, 15, 16, 17);
-        startMinutes.getItems().addAll("00", "30");
-        endHours.getItems().addAll(10, 11, 12, 13, 14, 15, 16, 17, 18);
-        endMinutes.getItems().addAll("00", "30");
+        startHours.getItems().addAll("09:00", "10:00", "11:00", "12:00", "13:00", "14;00", "15:00", "16:00", "17:00");
+        endHours.getItems().addAll("10:00", "11:00", "12:00", "13:00", "14;00", "15:00", "16:00", "17:00", "18:00");
 
         submitButton.disableProperty().bind(Bindings.isNull(actions.valueProperty()));
 
@@ -344,8 +340,8 @@ public class App extends Application {
                 if (!userAction.equals("Display Schedule") && !userAction.equals("Early Lectures")) {
                     className = classNameTextField.getText();
                     classDate = classDatePicker.getValue().getDayOfWeek().name();
-                    startTime = LocalTime.of(startHours.getValue(), Integer.parseInt(startMinutes.getValue()));
-                    endTime = LocalTime.of(endHours.getValue(), Integer.parseInt(endMinutes.getValue()));
+                    startTime = LocalTime.parse(startHours.getValue());
+                    endTime = LocalTime.parse(endHours.getValue());
                     roomNumber = roomNumberTextField.getText();
                 }
 
@@ -437,7 +433,7 @@ public class App extends Application {
             String value = actions.getValue();
             // If the chosen action requires data, disable the submit button until all fields are filled
             if (!value.equals("Display Schedule") && !value.equals("Early Lectures")) {
-                BooleanBinding requiredFields = Bindings.isEmpty(classNameTextField.textProperty()).or(Bindings.isNull(classDatePicker.valueProperty())).or(Bindings.isNull(startHours.valueProperty())).or(Bindings.isNull(startMinutes.valueProperty())).or(Bindings.isNull(endHours.valueProperty())).or(Bindings.isNull(endMinutes.valueProperty())).or(Bindings.isEmpty(roomNumberTextField.textProperty()));
+                BooleanBinding requiredFields = Bindings.isEmpty(classNameTextField.textProperty()).or(Bindings.isNull(classDatePicker.valueProperty())).or(Bindings.isNull(startHours.valueProperty())).or(Bindings.isNull(endHours.valueProperty())).or(Bindings.isEmpty(roomNumberTextField.textProperty()));
                 submitButton.disableProperty().bind(requiredFields);
             } else {
                 // Enable the button if display is selected
