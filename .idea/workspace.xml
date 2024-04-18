@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b271403f-01c4-43e0-af24-bdbd6ab390d6" name="Changes" comment="Added Basic Schedule in Client GUI" />
+    <list default="true" id="b271403f-01c4-43e0-af24-bdbd6ab390d6" name="Changes" comment="Updated Schedule GUI">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -61,7 +63,7 @@
       <workItem from="1709039541195" duration="1072000" />
       <workItem from="1709049841207" duration="13494000" />
       <workItem from="1713363419994" duration="809000" />
-      <workItem from="1713375084203" duration="784000" />
+      <workItem from="1713375084203" duration="2147000" />
     </task>
     <task id="LOCAL-00001" summary="Basic GUI">
       <option name="closed" value="true" />
@@ -95,7 +97,15 @@
       <option name="project" value="LOCAL" />
       <updated>1713375153655</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Updated Schedule GUI">
+      <option name="closed" value="true" />
+      <created>1713378039707</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1713378039707</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -106,6 +116,7 @@
     <MESSAGE value="Updated Client GUI to add DatePicker and Stop Button" />
     <MESSAGE value="Cleaned up the GUI a little" />
     <MESSAGE value="Added Basic Schedule in Client GUI" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added Basic Schedule in Client GUI" />
+    <MESSAGE value="Updated Schedule GUI" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated Schedule GUI" />
   </component>
 </project>
