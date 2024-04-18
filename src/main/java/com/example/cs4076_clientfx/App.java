@@ -6,6 +6,7 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
@@ -76,12 +77,13 @@ public class App extends Application {
      * @param roomNumber The room number of the class to perform the action on
      * @return The server's response
      */
-    private static String sendData(ObjectInputStream in, ObjectOutputStream out, String userAction, String className, String classDate, LocalTime startTime, LocalTime endTime, String roomNumber) {
+    private static String[] sendData(ObjectInputStream in, ObjectOutputStream out, String userAction, String className, String classDate, LocalTime startTime, LocalTime endTime, String roomNumber) {
         JSONObject obj = new JSONObject();
         JSONObject data = null;
         String res = "An error occurred while communicating with the server";
+        String earlyStatus = "";
 
-        if (!userAction.equals("Display Schedule") && !userAction.equals("STOP")) {
+        if (!userAction.equals("Display Schedule") && !userAction.equals("STOP") && !userAction.equals("Early Lectures")) {
             // Create a data object
             data = new JSONObject();
             data.put("name", className);
@@ -98,11 +100,12 @@ public class App extends Application {
             out.writeObject(obj);
             JSONObject resObj = (JSONObject) in.readObject();
             res = resObj.get("response").toString();
+            earlyStatus = resObj.get("earlyLectureStatus").toString();
         } catch (IOException | ClassNotFoundException | NullPointerException e) {
             e.printStackTrace();
         }
 
-        return res;
+        return new String[]{res, earlyStatus};
     }
 
     /**
@@ -187,6 +190,7 @@ public class App extends Application {
         Button submitButton = new Button("Submit");
         Button stopButton = new Button("Stop");
         Label serverResponse = new Label("Server Response");
+        Label earlyLectureStatus = new Label("Early Lecture Status: Not Started");
         ChoiceBox<String> actions = new ChoiceBox<>();
         ChoiceBox<Integer> startHours = new ChoiceBox<>();
         ChoiceBox<String> startMinutes = new ChoiceBox<>();
@@ -208,21 +212,22 @@ public class App extends Application {
         Label Title_17 = new Label("17:00");
         Label Title_18 = new Label("18:00");
         Label[][] Class_Array = new Label[5][10];
-        for(int i = 0; i < 5; i++) {
-            for(int j = 0; j < 10; j++) {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 10; j++) {
                 Class_Array[i][j] = new Label("|");
             }
         }
         Label[][] Room_Array = new Label[5][10];
-        for(int i = 0; i < 5; i++) {
-            for(int j = 0; j < 10; j++) {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 10; j++) {
                 Room_Array[i][j] = new Label("|");
             }
         }
 
         GridPane SchedulePane = new GridPane();
-        SchedulePane.setHgap(8);
-        SchedulePane.setVgap(8);
+        SchedulePane.setHgap(0);
+        SchedulePane.setVgap(0);
+        SchedulePane.setGridLinesVisible(true);
         SchedulePane.setPadding(new Insets(5));
         SchedulePane.addRow(1, new Label(""), new Label("|MONDAY"), new Label("|TUESDAY"), new Label("|WEDNESDAY"), new Label("|THURSDAY"), new Label("|FRIDAY"));
         SchedulePane.addRow(2, Title_9, Class_Array[0][0], Class_Array[1][0], Class_Array[2][0], Class_Array[3][0], Class_Array[4][0]);
@@ -264,7 +269,7 @@ public class App extends Application {
         classDatePicker.setPromptText("Class Date");
         roomNumberTextField.setPromptText("Room Number");
 
-        actions.getItems().addAll("Add Class", "Remove Class", "Display Schedule");
+        actions.getItems().addAll("Add Class", "Remove Class", "Display Schedule", "Early Lectures");
         serverResponse.setWrapText(true);
         classDatePicker.setEditable(false);
         btnControls.setAlignment(Pos.CENTER);
@@ -300,8 +305,8 @@ public class App extends Application {
 
         // Add the GUI elements to the pane
         gridPane.addRow(0, classNameTextField, btnControls);
-        gridPane.addRow(1, classDatePicker, serverResponse);
-        gridPane.addRow(2, startTimeBox);
+        gridPane.addRow(1, classDatePicker, earlyLectureStatus);
+        gridPane.addRow(2, startTimeBox, serverResponse);
         gridPane.addRow(3, endTimeBox);
         gridPane.addRow(4, roomNumberTextField);
         gridPane.addRow(5, actionBox);
@@ -316,6 +321,8 @@ public class App extends Application {
         // Align the server response message
         GridPane.setRowSpan(serverResponse, 5);
         GridPane.setHalignment(serverResponse, HPos.CENTER);
+        GridPane.setValignment(serverResponse, VPos.TOP);
+        GridPane.setHalignment(earlyLectureStatus, HPos.CENTER);
 
         stage.setTitle("Class Scheduler");
 
@@ -344,7 +351,7 @@ public class App extends Application {
                 String roomNumber = null;
 
                 // Collect the form data
-                if (!userAction.equals("Display Schedule")) {
+                if (!userAction.equals("Display Schedule") && !userAction.equals("Early Lectures")) {
                     className = classNameTextField.getText();
                     classDate = classDatePicker.getValue().getDayOfWeek().name();
                     startTime = LocalTime.of(startHours.getValue(), Integer.parseInt(startMinutes.getValue()));
@@ -353,15 +360,15 @@ public class App extends Application {
                 }
 
                 // Send the form data
-                String res = sendData(in, out, userAction, className, classDate, startTime, endTime, roomNumber);
+                String[] res = sendData(in, out, userAction, className, classDate, startTime, endTime, roomNumber);
 
                 if (userAction.equals("Display Schedule")) {
                     try {
-                        JSONObject schedule = (JSONObject) new JSONParser().parse(res);
+                        JSONObject schedule = (JSONObject) new JSONParser().parse(res[0]);
 
                         //Clear Schedule
-                        for(int i = 0; i < 5; i++) {
-                            for(int j = 0; j < 10; j++) {
+                        for (int i = 0; i < 5; i++) {
+                            for (int j = 0; j < 10; j++) {
                                 Class_Array[i][j].setText("|");
                                 Room_Array[i][j].setText("|");
                             }
@@ -394,13 +401,16 @@ public class App extends Application {
                             }
                         }
                         serverResponse.setText("Schedule Updated");
+                        earlyLectureStatus.setText("Early Lecture Status: " + res[1]);
                     } catch (ParseException e) {
                         serverResponse.setText("Server sent an invalid response.");
+                        earlyLectureStatus.setText("Early Lecture Status: " + res[1]);
                         e.printStackTrace();
                     }
                 } else {
                     // Display the response
-                    serverResponse.setText(res);
+                    serverResponse.setText(res[0]);
+                    earlyLectureStatus.setText("Early Lecture Status: " + res[1]);
                 }
 
             } catch (SocketException e) {
@@ -417,7 +427,7 @@ public class App extends Application {
         actions.setOnAction(event -> {
             String value = actions.getValue();
             // If the chosen action requires data, disable the submit button until all fields are filled
-            if (!value.equals("Display Schedule")) {
+            if (!value.equals("Display Schedule") && !value.equals("Early Lectures")) {
                 BooleanBinding requiredFields = Bindings.isEmpty(classNameTextField.textProperty()).or(Bindings.isNull(classDatePicker.valueProperty())).or(Bindings.isNull(startHours.valueProperty())).or(Bindings.isNull(startMinutes.valueProperty())).or(Bindings.isNull(endHours.valueProperty())).or(Bindings.isNull(endMinutes.valueProperty())).or(Bindings.isEmpty(roomNumberTextField.textProperty()));
                 submitButton.disableProperty().bind(requiredFields);
             } else {
@@ -439,8 +449,9 @@ public class App extends Application {
                     e.printStackTrace();
                 }
 
-                String res = sendData(in, out, "STOP", null, null, null, null, null);
-                serverResponse.setText(res);
+                String[] res = sendData(in, out, "STOP", null, null, null, null, null);
+                serverResponse.setText(res[0]);
+                earlyLectureStatus.setText("Early Lecture Status: " + res[1]);
 
                 closeConnection();
             }
