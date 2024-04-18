@@ -1,5 +1,7 @@
 package com.example.cs4076_clientfx;
-
+/*
+ * JavaFX Imports
+ */
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -192,76 +194,62 @@ public class App extends Application {
         Label serverResponse = new Label("Server Response");
         Label earlyLectureStatus = new Label("Early Lecture Status: Not Started");
         ChoiceBox<String> actions = new ChoiceBox<>();
-        ChoiceBox<Integer> startHours = new ChoiceBox<>();
-        ChoiceBox<String> startMinutes = new ChoiceBox<>();
-        ChoiceBox<Integer> endHours = new ChoiceBox<>();
-        ChoiceBox<String> endMinutes = new ChoiceBox<>();
-        HBox startTimeBox = new HBox(5, new Label("Start Time:"), startHours, new Label(":"), startMinutes);
-        HBox endTimeBox = new HBox(5, new Label("End Time: "), endHours, new Label(":"), endMinutes);
+        ChoiceBox<String> startHours = new ChoiceBox<>();
+        ChoiceBox<String> endHours = new ChoiceBox<>();
+        HBox startTimeBox = new HBox(5, new Label("Start Time:"), startHours);
+        HBox endTimeBox = new HBox(5, new Label("End Time: "), endHours);
         HBox actionBox = new HBox(5, new Label("Action:"), actions);
         HBox btnControls = new HBox(25, submitButton, stopButton);
         //Schedule Labels
-        Label Title_9 = new Label("09:00");
-        Label Title_10 = new Label("10:00");
-        Label Title_11 = new Label("11:00");
-        Label Title_12 = new Label("12:00");
-        Label Title_13 = new Label("13:00");
-        Label Title_14 = new Label("14:00");
-        Label Title_15 = new Label("15:00");
-        Label Title_16 = new Label("16:00");
-        Label Title_17 = new Label("17:00");
-        Label Title_18 = new Label("18:00");
+        Label Monday = new Label();
+        Label Tuesday = new Label();
+        Label Wednesday = new Label();
+        Label Thursday = new Label();
+        Label Friday = new Label();
+        Label Title_9 = new Label();
+        Label Title_10 = new Label();
+        Label Title_11 = new Label();
+        Label Title_12 = new Label();
+        Label Title_13 = new Label();
+        Label Title_14 = new Label();
+        Label Title_15 = new Label();
+        Label Title_16 = new Label();
+        Label Title_17 = new Label();
+        Label Title_18 = new Label();
         Label[][] Class_Array = new Label[5][10];
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 10; j++) {
-                Class_Array[i][j] = new Label("|");
-            }
-        }
-        Label[][] Room_Array = new Label[5][10];
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 10; j++) {
-                Room_Array[i][j] = new Label("|");
+                Class_Array[i][j] = new Label();
             }
         }
 
         GridPane SchedulePane = new GridPane();
-        SchedulePane.setHgap(0);
-        SchedulePane.setVgap(0);
-        SchedulePane.setGridLinesVisible(true);
         SchedulePane.setPadding(new Insets(5));
-        SchedulePane.addRow(1, new Label(""), new Label("|MONDAY"), new Label("|TUESDAY"), new Label("|WEDNESDAY"), new Label("|THURSDAY"), new Label("|FRIDAY"));
+        SchedulePane.addRow(1, new Label(), Monday, Tuesday, Wednesday, Thursday, Friday);
         SchedulePane.addRow(2, Title_9, Class_Array[0][0], Class_Array[1][0], Class_Array[2][0], Class_Array[3][0], Class_Array[4][0]);
-        SchedulePane.addRow(3, new Label(""), Room_Array[0][0], Room_Array[1][0], Room_Array[2][0], Room_Array[3][0], Room_Array[4][0]);
-        SchedulePane.addRow(4, Title_10, Class_Array[0][1], Class_Array[1][1], Class_Array[2][1], Class_Array[3][1], Class_Array[4][1]);
-        SchedulePane.addRow(5, new Label(""), Room_Array[0][1], Room_Array[1][1], Room_Array[2][1], Room_Array[3][1], Room_Array[4][1]);
-        SchedulePane.addRow(6, Title_11, Class_Array[0][2], Class_Array[1][2], Class_Array[2][2], Class_Array[3][2], Class_Array[4][2]);
-        SchedulePane.addRow(7, new Label(""), Room_Array[0][2], Room_Array[1][2], Room_Array[2][2], Room_Array[3][2], Room_Array[4][2]);
-        SchedulePane.addRow(8, Title_12, Class_Array[0][3], Class_Array[1][3], Class_Array[2][3], Class_Array[3][3], Class_Array[4][3]);
-        SchedulePane.addRow(9, new Label(""), Room_Array[0][3], Room_Array[1][3], Room_Array[2][3], Room_Array[3][3], Room_Array[4][3]);
-        SchedulePane.addRow(10, Title_13, Class_Array[0][4], Class_Array[1][4], Class_Array[2][4], Class_Array[3][4], Class_Array[4][4]);
-        SchedulePane.addRow(11, new Label(""), Room_Array[0][4], Room_Array[1][4], Room_Array[2][4], Room_Array[3][4], Room_Array[4][4]);
-        SchedulePane.addRow(12, Title_14, Class_Array[0][5], Class_Array[1][5], Class_Array[2][5], Class_Array[3][5], Class_Array[4][5]);
-        SchedulePane.addRow(13, new Label(""), Room_Array[0][5], Room_Array[1][5], Room_Array[2][5], Room_Array[3][5], Room_Array[4][5]);
-        SchedulePane.addRow(14, Title_15, Class_Array[0][6], Class_Array[1][6], Class_Array[2][6], Class_Array[3][6], Class_Array[4][6]);
-        SchedulePane.addRow(15, new Label(""), Room_Array[0][6], Room_Array[1][6], Room_Array[2][6], Room_Array[3][6], Room_Array[4][6]);
-        SchedulePane.addRow(16, Title_16, Class_Array[0][7], Class_Array[1][7], Class_Array[2][7], Class_Array[3][7], Class_Array[4][7]);
-        SchedulePane.addRow(17, new Label(""), Room_Array[0][7], Room_Array[1][7], Room_Array[2][7], Room_Array[3][7], Room_Array[4][7]);
-        SchedulePane.addRow(18, Title_17, Class_Array[0][8], Class_Array[1][8], Class_Array[2][8], Class_Array[3][8], Class_Array[4][8]);
-        SchedulePane.addRow(19, new Label(""), Room_Array[0][8], Room_Array[1][8], Room_Array[2][8], Room_Array[3][8], Room_Array[4][8]);
-        SchedulePane.addRow(20, Title_18, Class_Array[0][9], Class_Array[1][9], Class_Array[2][9], Class_Array[3][9], Class_Array[4][9]);
-        SchedulePane.addRow(21, new Label(""), Room_Array[0][9], Room_Array[1][9], Room_Array[2][9], Room_Array[3][9], Room_Array[4][9]);
+        SchedulePane.addRow(3, Title_10, Class_Array[0][1], Class_Array[1][1], Class_Array[2][1], Class_Array[3][1], Class_Array[4][1]);
+        SchedulePane.addRow(4, Title_11, Class_Array[0][2], Class_Array[1][2], Class_Array[2][2], Class_Array[3][2], Class_Array[4][2]);
+        SchedulePane.addRow(5, Title_12, Class_Array[0][3], Class_Array[1][3], Class_Array[2][3], Class_Array[3][3], Class_Array[4][3]);
+        SchedulePane.addRow(6, Title_13, Class_Array[0][4], Class_Array[1][4], Class_Array[2][4], Class_Array[3][4], Class_Array[4][4]);
+        SchedulePane.addRow(7, Title_14, Class_Array[0][5], Class_Array[1][5], Class_Array[2][5], Class_Array[3][5], Class_Array[4][5]);
+        SchedulePane.addRow(8, Title_15, Class_Array[0][6], Class_Array[1][6], Class_Array[2][6], Class_Array[3][6], Class_Array[4][6]);
+        SchedulePane.addRow(9, Title_16, Class_Array[0][7], Class_Array[1][7], Class_Array[2][7], Class_Array[3][7], Class_Array[4][7]);
+        SchedulePane.addRow(10, Title_17, Class_Array[0][8], Class_Array[1][8], Class_Array[2][8], Class_Array[3][8], Class_Array[4][8]);
+        SchedulePane.addRow(11, Title_18, Class_Array[0][9], Class_Array[1][9], Class_Array[2][9], Class_Array[3][9], Class_Array[4][9]);
 
+        ColumnConstraints Schedule_col1 = new ColumnConstraints();
         ColumnConstraints Schedule_col2 = new ColumnConstraints();
         ColumnConstraints Schedule_col3 = new ColumnConstraints();
         ColumnConstraints Schedule_col4 = new ColumnConstraints();
         ColumnConstraints Schedule_col5 = new ColumnConstraints();
         ColumnConstraints Schedule_col6 = new ColumnConstraints();
+        Schedule_col1.setPrefWidth(100);
         Schedule_col2.setPrefWidth(100);
         Schedule_col3.setPrefWidth(100);
         Schedule_col4.setPrefWidth(100);
         Schedule_col5.setPrefWidth(100);
         Schedule_col6.setPrefWidth(100);
-        SchedulePane.getColumnConstraints().addAll(Schedule_col2, Schedule_col3, Schedule_col4, Schedule_col5, Schedule_col6);
+        SchedulePane.getColumnConstraints().addAll(Schedule_col1, Schedule_col2, Schedule_col3, Schedule_col4, Schedule_col5, Schedule_col6);
 
 
         // Set the necessary properties for the GUI elements
@@ -274,10 +262,8 @@ public class App extends Application {
         classDatePicker.setEditable(false);
         btnControls.setAlignment(Pos.CENTER);
 
-        startHours.getItems().addAll(9, 10, 11, 12, 13, 14, 15, 16, 17);
-        startMinutes.getItems().addAll("00", "30");
-        endHours.getItems().addAll(10, 11, 12, 13, 14, 15, 16, 17, 18);
-        endMinutes.getItems().addAll("00", "30");
+        startHours.getItems().addAll("09:00", "10:00", "11:00", "12:00", "13:00", "14;00", "15:00", "16:00", "17:00");
+        endHours.getItems().addAll("10:00", "11:00", "12:00", "13:00", "14;00", "15:00", "16:00", "17:00", "18:00");
 
         submitButton.disableProperty().bind(Bindings.isNull(actions.valueProperty()));
 
@@ -354,8 +340,8 @@ public class App extends Application {
                 if (!userAction.equals("Display Schedule") && !userAction.equals("Early Lectures")) {
                     className = classNameTextField.getText();
                     classDate = classDatePicker.getValue().getDayOfWeek().name();
-                    startTime = LocalTime.of(startHours.getValue(), Integer.parseInt(startMinutes.getValue()));
-                    endTime = LocalTime.of(endHours.getValue(), Integer.parseInt(endMinutes.getValue()));
+                    startTime = LocalTime.parse(startHours.getValue());
+                    endTime = LocalTime.parse(endHours.getValue());
                     roomNumber = roomNumberTextField.getText();
                 }
 
@@ -366,11 +352,28 @@ public class App extends Application {
                     try {
                         JSONObject schedule = (JSONObject) new JSONParser().parse(res[0]);
 
+                        //Setup first schedule
+                        SchedulePane.setGridLinesVisible(true);
+                        Monday.setText("MONDAY");
+                        Tuesday.setText("TUESDAY");
+                        Wednesday.setText("WEDNESDAY");
+                        Thursday.setText("THURSDAY");
+                        Friday.setText("FRIDAY");
+                        Title_9.setText("09:00");
+                        Title_10.setText("10:00");
+                        Title_11.setText("11:00");
+                        Title_12.setText("12:00");
+                        Title_13.setText("13:00");
+                        Title_14.setText("14:00");
+                        Title_15.setText("15:00");
+                        Title_16.setText("16:00");
+                        Title_17.setText("17:00");
+                        Title_18.setText("18:00");
+
                         //Clear Schedule
                         for (int i = 0; i < 5; i++) {
                             for (int j = 0; j < 10; j++) {
-                                Class_Array[i][j].setText("|");
-                                Room_Array[i][j].setText("|");
+                                Class_Array[i][j].setText("");
                             }
                         }
 
@@ -386,15 +389,17 @@ public class App extends Application {
                         for (int day = 0; day < 5; day++) {
                             for (int i = 0; i < DaysInfo[day].size(); i++) {
                                 JSONObject temp = (JSONObject) DaysInfo[day].get(i);
-                                if (temp.get("startTime").toString().equals("9:00")) {
-                                    Class_Array[day][0].setText("|" + temp.get("name").toString());
-                                    Room_Array[day][0].setText("|" + temp.get("roomNumber").toString());
+                                int startTimeInt;
+                                if (temp.get("startTime").toString().equals("09:00")) {
+                                    startTimeInt = 47;
                                 } else {
-                                    for (int j = 0; j < 8; j++) {
-                                        int tempInt = temp.get("startTime").toString().charAt(1);
-                                        if (tempInt == (j + 48)) {
-                                            Class_Array[day][j + 1].setText("|" + temp.get("name").toString());
-                                            Room_Array[day][j + 1].setText("|" + temp.get("roomNumber").toString());
+                                    startTimeInt = temp.get("startTime").toString().charAt(1);
+                                }
+                                for (int j = 0; j < 9; j++) {
+                                    if (startTimeInt == (j + 47)) {
+                                        int endTimeInt = temp.get("endTime").toString().charAt(1);
+                                        for(int k = j; k < ((endTimeInt-startTimeInt)+j); k++) {
+                                            Class_Array[day][k].setText(temp.get("name").toString() + "\n" + temp.get("roomNumber").toString());
                                         }
                                     }
                                 }
@@ -428,7 +433,7 @@ public class App extends Application {
             String value = actions.getValue();
             // If the chosen action requires data, disable the submit button until all fields are filled
             if (!value.equals("Display Schedule") && !value.equals("Early Lectures")) {
-                BooleanBinding requiredFields = Bindings.isEmpty(classNameTextField.textProperty()).or(Bindings.isNull(classDatePicker.valueProperty())).or(Bindings.isNull(startHours.valueProperty())).or(Bindings.isNull(startMinutes.valueProperty())).or(Bindings.isNull(endHours.valueProperty())).or(Bindings.isNull(endMinutes.valueProperty())).or(Bindings.isEmpty(roomNumberTextField.textProperty()));
+                BooleanBinding requiredFields = Bindings.isEmpty(classNameTextField.textProperty()).or(Bindings.isNull(classDatePicker.valueProperty())).or(Bindings.isNull(startHours.valueProperty())).or(Bindings.isNull(endHours.valueProperty())).or(Bindings.isEmpty(roomNumberTextField.textProperty()));
                 submitButton.disableProperty().bind(requiredFields);
             } else {
                 // Enable the button if display is selected
