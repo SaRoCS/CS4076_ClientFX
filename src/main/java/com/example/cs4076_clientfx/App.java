@@ -2,6 +2,7 @@ package com.example.cs4076_clientfx;
 /*
  * JavaFX Imports
  */
+
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -201,30 +202,46 @@ public class App extends Application {
         HBox actionBox = new HBox(5, new Label("Action:"), actions);
         HBox btnControls = new HBox(25, submitButton, stopButton);
         //Schedule Labels
-        Label Monday = new Label();
-        Label Tuesday = new Label();
-        Label Wednesday = new Label();
-        Label Thursday = new Label();
-        Label Friday = new Label();
-        Label Title_9 = new Label();
-        Label Title_10 = new Label();
-        Label Title_11 = new Label();
-        Label Title_12 = new Label();
-        Label Title_13 = new Label();
-        Label Title_14 = new Label();
-        Label Title_15 = new Label();
-        Label Title_16 = new Label();
-        Label Title_17 = new Label();
-        Label Title_18 = new Label();
-        Label[][] Class_Array = new Label[5][10];
+        Label Monday = new Label("MONDAY");
+        Label Tuesday = new Label("TUESDAY");
+        Label Wednesday = new Label("WEDNESDAY");
+        Label Thursday = new Label("THURSDAY");
+        Label Friday = new Label("FRIDAY");
+        Label Title_9 = new Label("09:00");
+        Label Title_10 = new Label("10:00");
+        Label Title_11 = new Label("11:00");
+        Label Title_12 = new Label("12:00");
+        Label Title_13 = new Label("13:00");
+        Label Title_14 = new Label("14:00");
+        Label Title_15 = new Label("15:00");
+        Label Title_16 = new Label("16:00");
+        Label Title_17 = new Label("17:00");
+        Label[][] Class_Array = new Label[5][9];
         for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 10; j++) {
-                Class_Array[i][j] = new Label();
+            for (int j = 0; j < 9; j++) {
+                Label temp = new Label();
+                temp.setPadding(new Insets(5));
+                Class_Array[i][j] = temp;
             }
         }
 
+        Monday.setPadding(new Insets(5));
+        Tuesday.setPadding(new Insets(5));
+        Wednesday.setPadding(new Insets(5));
+        Thursday.setPadding(new Insets(5));
+        Friday.setPadding(new Insets(5));
+        Title_9.setPadding(new Insets(5));
+        Title_10.setPadding(new Insets(5));
+        Title_11.setPadding(new Insets(5));
+        Title_12.setPadding(new Insets(5));
+        Title_13.setPadding(new Insets(5));
+        Title_14.setPadding(new Insets(5));
+        Title_15.setPadding(new Insets(5));
+        Title_16.setPadding(new Insets(5));
+        Title_17.setPadding(new Insets(5));
+
+
         GridPane SchedulePane = new GridPane();
-        SchedulePane.setPadding(new Insets(5));
         SchedulePane.addRow(1, new Label(), Monday, Tuesday, Wednesday, Thursday, Friday);
         SchedulePane.addRow(2, Title_9, Class_Array[0][0], Class_Array[1][0], Class_Array[2][0], Class_Array[3][0], Class_Array[4][0]);
         SchedulePane.addRow(3, Title_10, Class_Array[0][1], Class_Array[1][1], Class_Array[2][1], Class_Array[3][1], Class_Array[4][1]);
@@ -235,22 +252,15 @@ public class App extends Application {
         SchedulePane.addRow(8, Title_15, Class_Array[0][6], Class_Array[1][6], Class_Array[2][6], Class_Array[3][6], Class_Array[4][6]);
         SchedulePane.addRow(9, Title_16, Class_Array[0][7], Class_Array[1][7], Class_Array[2][7], Class_Array[3][7], Class_Array[4][7]);
         SchedulePane.addRow(10, Title_17, Class_Array[0][8], Class_Array[1][8], Class_Array[2][8], Class_Array[3][8], Class_Array[4][8]);
-        SchedulePane.addRow(11, Title_18, Class_Array[0][9], Class_Array[1][9], Class_Array[2][9], Class_Array[3][9], Class_Array[4][9]);
 
-        ColumnConstraints Schedule_col1 = new ColumnConstraints();
-        ColumnConstraints Schedule_col2 = new ColumnConstraints();
-        ColumnConstraints Schedule_col3 = new ColumnConstraints();
-        ColumnConstraints Schedule_col4 = new ColumnConstraints();
-        ColumnConstraints Schedule_col5 = new ColumnConstraints();
-        ColumnConstraints Schedule_col6 = new ColumnConstraints();
-        Schedule_col1.setPrefWidth(100);
-        Schedule_col2.setPrefWidth(100);
-        Schedule_col3.setPrefWidth(100);
-        Schedule_col4.setPrefWidth(100);
-        Schedule_col5.setPrefWidth(100);
-        Schedule_col6.setPrefWidth(100);
-        SchedulePane.getColumnConstraints().addAll(Schedule_col1, Schedule_col2, Schedule_col3, Schedule_col4, Schedule_col5, Schedule_col6);
+        // Schedule formatting
+        ColumnConstraints Schedule_col = new ColumnConstraints();
+        Schedule_col.setPrefWidth(100);
+        SchedulePane.getColumnConstraints().addAll(Schedule_col, Schedule_col, Schedule_col, Schedule_col, Schedule_col, Schedule_col);
+        SchedulePane.setGridLinesVisible(true);
 
+        // Hide schedule at start
+        SchedulePane.setVisible(false);
 
         // Set the necessary properties for the GUI elements
         classNameTextField.setPromptText("Class Name");
@@ -262,8 +272,8 @@ public class App extends Application {
         classDatePicker.setEditable(false);
         btnControls.setAlignment(Pos.CENTER);
 
-        startHours.getItems().addAll("09:00", "10:00", "11:00", "12:00", "13:00", "14;00", "15:00", "16:00", "17:00");
-        endHours.getItems().addAll("10:00", "11:00", "12:00", "13:00", "14;00", "15:00", "16:00", "17:00", "18:00");
+        startHours.getItems().addAll("09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00");
+        endHours.getItems().addAll("10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00");
 
         submitButton.disableProperty().bind(Bindings.isNull(actions.valueProperty()));
 
@@ -304,11 +314,12 @@ public class App extends Application {
         col2.setPrefWidth(200);
         gridPane.getColumnConstraints().addAll(col1, col2);
 
-        // Align the server response message
+        // Align items
         GridPane.setRowSpan(serverResponse, 5);
         GridPane.setHalignment(serverResponse, HPos.CENTER);
         GridPane.setValignment(serverResponse, VPos.TOP);
         GridPane.setHalignment(earlyLectureStatus, HPos.CENTER);
+        GridPane.setColumnSpan(SchedulePane, 2);
 
         stage.setTitle("Class Scheduler");
 
@@ -316,6 +327,9 @@ public class App extends Application {
         stage.setOnShown(event -> gridPane.requestFocus());
 
         submitButton.setOnAction(event -> {
+            // Hide the schedule again
+            SchedulePane.setVisible(false);
+
             try {
                 // Connect to the server if needed
                 if (!connectionOpen) {
@@ -352,32 +366,10 @@ public class App extends Application {
                     try {
                         JSONObject schedule = (JSONObject) new JSONParser().parse(res[0]);
 
-                        //Setup first schedule
-                        SchedulePane.setGridLinesVisible(true);
-                        Monday.setText("MONDAY");
-                        Tuesday.setText("TUESDAY");
-                        Wednesday.setText("WEDNESDAY");
-                        Thursday.setText("THURSDAY");
-                        Friday.setText("FRIDAY");
-                        Title_9.setText("09:00");
-                        Title_10.setText("10:00");
-                        Title_11.setText("11:00");
-                        Title_12.setText("12:00");
-                        Title_13.setText("13:00");
-                        Title_14.setText("14:00");
-                        Title_15.setText("15:00");
-                        Title_16.setText("16:00");
-                        Title_17.setText("17:00");
-                        Title_18.setText("18:00");
+                        // Display schedule
+                        SchedulePane.setVisible(true);
 
-                        //Clear Schedule
-                        for (int i = 0; i < 5; i++) {
-                            for (int j = 0; j < 10; j++) {
-                                Class_Array[i][j].setText("");
-                            }
-                        }
-
-                        //Get Info
+                        // Get Info
                         JSONArray[] DaysInfo = new JSONArray[5];
                         DaysInfo[0] = (JSONArray) schedule.get("MONDAY");
                         DaysInfo[1] = (JSONArray) schedule.get("TUESDAY");
@@ -385,7 +377,14 @@ public class App extends Application {
                         DaysInfo[3] = (JSONArray) schedule.get("THURSDAY");
                         DaysInfo[4] = (JSONArray) schedule.get("FRIDAY");
 
-                        //Updated Schedule
+                        // Clear Schedule
+                        for (int i = 0; i < 5; i++) {
+                            for (int j = 1; j < 9; j++) {
+                                Class_Array[i][j].setText("");
+                            }
+                        }
+
+                        // Updated Schedule
                         for (int day = 0; day < 5; day++) {
                             for (int i = 0; i < DaysInfo[day].size(); i++) {
                                 JSONObject temp = (JSONObject) DaysInfo[day].get(i);
@@ -398,14 +397,15 @@ public class App extends Application {
                                 for (int j = 0; j < 9; j++) {
                                     if (startTimeInt == (j + 47)) {
                                         int endTimeInt = temp.get("endTime").toString().charAt(1);
-                                        for(int k = j; k < ((endTimeInt-startTimeInt)+j); k++) {
+                                        for (int k = j; k < ((endTimeInt - startTimeInt) + j); k++) {
                                             Class_Array[day][k].setText(temp.get("name").toString() + "\n" + temp.get("roomNumber").toString());
                                         }
                                     }
                                 }
                             }
                         }
-                        serverResponse.setText("Schedule Updated");
+
+                        serverResponse.setText("Schedule Displayed");
                         earlyLectureStatus.setText("Early Lecture Status: " + res[1]);
                     } catch (ParseException e) {
                         serverResponse.setText("Server sent an invalid response.");
@@ -463,7 +463,7 @@ public class App extends Application {
         });
 
         //Sets the scene
-        Scene scene = new Scene(gridPane, 1000, 510);
+        Scene scene = new Scene(gridPane, 600, 610);
         stage.setScene(scene);
         stage.show();
     }
